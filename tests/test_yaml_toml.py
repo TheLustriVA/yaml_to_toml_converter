@@ -12,10 +12,11 @@ class TestYamlToToml(unittest.TestCase):
         yaml_toml.convert_yaml_to_toml(Path('test.yml'), Path('test.toml'))
 
         # Check that the YAML file was read correctly
-        mock_open.assert_called_once_with(Path('test.yml'), 'r')
+        mock_open.assert_any_call(Path('test.yml'), 'r')
 
         # Check that the correct data was written to the TOML file
-        mock_toml_dump.assert_called_once_with({'key': 'value'}, unittest.mock.ANY)
+        mock_toml_dump.assert_called_once_with({'key': 'value'}, mock_open())
+
 
     @patch('src.yaml_toml.yaml_toml.convert_yaml_to_toml')
     def test_convert_file(self, mock_convert_yaml_to_toml):
@@ -45,6 +46,7 @@ class TestYamlToToml(unittest.TestCase):
     def test_main(self, mock_parse_arguments, mock_convert_file):
         # Create a mock Namespace object to return from parse_arguments
         args = argparse.Namespace()
+        args.input = None
         args.yaml_files = [Path('test1.yml'), Path('test2.yml')]
         args.output = Path('outputs')
         args.skip_extension_check = False
@@ -63,6 +65,7 @@ class TestYamlToToml(unittest.TestCase):
     def test_main_no_arguments(self, mock_cwd, mock_glob, mock_parse_arguments, mock_convert_file):
         # Create a mock Namespace object to return from parse_arguments
         args = argparse.Namespace()
+        args.input = None
         args.yaml_files = []
         args.output = Path('outputs')
         args.skip_extension_check = False
